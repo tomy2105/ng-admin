@@ -48,7 +48,7 @@ export default class FormController {
         if (!this.validateEntry()) {
             return Promise.reject();
         }
-        const { entity, view, $state, progression, notification, $translate } = this;
+        const { entity, view, $state, previousState, progression, notification, $translate } = this;
         var route = entity.showView().enabled ? 'show' : 'list';
         var restEntry = this.$scope.entry.transformToRest(view.fields());
         const fromState = $state.current.name;
@@ -71,7 +71,7 @@ export default class FormController {
                 .then(entry => view.onSubmitSuccess() && this.$injector.invoke(
                     view.onSubmitSuccess(),
                     view,
-                    { $event, entity, entry, route, controller: this, form: this.form, progression, notification }
+                    { $event, entity, entry, route, controller: this, form: this.form, progression, notification, previousState }
                 ))
                 .then(customHandlerReturnValue => {
                     if (customHandlerReturnValue === false) return new Promise(innerResolve => innerResolve());
@@ -120,7 +120,7 @@ export default class FormController {
                 .then(entry => view.onSubmitSuccess() && this.$injector.invoke(
                     view.onSubmitSuccess(),
                     view,
-                    { $event, entity: this.entity, entry, controller: this, form: this.form, progression, notification }
+                    { $event, entity: this.entity, entry, controller: this, form: this.form, progression, notification, previousState }
                 ))
                 .then(customHandlerReturnValue => {
                     if (customHandlerReturnValue === false) return;

@@ -24,7 +24,7 @@ export default class DeleteController {
 
         this.previousStateParametersDeferred = $q.defer();
         $scope.$on('$stateChangeSuccess', (event, to, toParams, from, fromParams) => {
-            this.previousStateParametersDeferred.resolve(fromParams);
+            this.previousStateParametersDeferred.resolve({name: from.name, params: fromParams});
         });
     }
 
@@ -35,9 +35,9 @@ export default class DeleteController {
             progression.start();
 
             this.previousStateParametersDeferred.promise
-                .then((previousStateParameters) => {
+                .then((previousState) => {
                     const fromState = 'delete';
-                    const fromParams = previousStateParameters;
+                    const fromParams = previousState.params;
                     let toState;
                     let toParams;
 
@@ -50,14 +50,14 @@ export default class DeleteController {
                                 entity: entityName,
                                 ...this.$state.params,
                             };
-
+                            previousState.name = this.$state.get('list');
                     }
-
+                    
                     return this.WriteQueries.deleteOne(this.view, this.entityId)
                         .then(() => view.onSubmitSuccess() && this.$injector.invoke(
                             view.onSubmitSuccess(),
                             view,
-                            { $event, entity: this.entity, entry, controller: this, form: this.form, progression, notification }
+                            { $event, entity: this.entity, entry, controller: this, form: this.form, progression, notification, previousState }
                         ))
                         .then(customHandlerReturnValue => {
                             if (customHandlerReturnValue === false) return new Promise(innerResolve => innerResolve());	
