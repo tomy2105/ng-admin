@@ -1,10 +1,11 @@
 export default class DeleteController {
-    constructor($scope, $window, $state, $injector, $q, $translate, WriteQueries, Configuration, progression, notification, params, view, entry, HttpErrorService) {
+    constructor($scope, $window, $state, $injector, $q, $translate, previousState, WriteQueries, Configuration, progression, notification, params, view, entry, HttpErrorService) {
         this.$scope = $scope;
         this.$window = $window;
         this.$state = $state;
         this.$injector = $injector;
         this.$translate = $translate;
+        this.previousState = previousState;
         this.WriteQueries = WriteQueries;
         this.config = Configuration();
         this.entityLabel = params.entity;
@@ -24,20 +25,20 @@ export default class DeleteController {
 
         this.previousStateParametersDeferred = $q.defer();
         $scope.$on('$stateChangeSuccess', (event, to, toParams, from, fromParams) => {
-            this.previousStateParametersDeferred.resolve({name: from.name, params: fromParams});
+            this.previousStateParametersDeferred.resolve(fromParams);
         });
     }
 
     deleteOne($event) {
         return new Promise((resolve, reject) => {
             const entityName = this.entity.name();
-            const { $translate, notification, progression, entry, view } = this;
+            const { $translate, notification, progression, entry, view, previousState} = this;
             progression.start();
 
             this.previousStateParametersDeferred.promise
-                .then((previousState) => {
+                .then((previousStateParams) => {
                     const fromState = 'delete';
-                    const fromParams = previousState.params;
+                    const fromParams = previousStateParams;
                     let toState;
                     let toParams;
 
@@ -104,4 +105,4 @@ export default class DeleteController {
     }
 }
 
-DeleteController.$inject = ['$scope', '$window', '$state', '$injector', '$q', '$translate', 'WriteQueries', 'NgAdminConfiguration', 'progression', 'notification', 'params', 'view', 'entry', 'HttpErrorService'];
+DeleteController.$inject = ['$scope', '$window', '$state', '$injector', '$q', '$translate', 'previousState', 'WriteQueries', 'NgAdminConfiguration', 'progression', 'notification', 'params', 'view', 'entry', 'HttpErrorService'];
